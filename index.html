@@ -145,7 +145,8 @@
           <i class="fa-solid fa-shield-halved"></i> 법령 팩트체크 & 할루시네이션 제거
         </button>
         <button onclick="switchTab('tab-news')" id="btn-tab-news" class="tab-btn px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
-          <i class="fa-solid fa-newspaper"></i> 실시간 환경뉴스 & 시험요강 감지
+          <i class="fa-solid fa-satellite-dish text-emerald-400"></i> AI 환경정책·시험 변동 분석 & 조치
+          <span id="policyActionBadge" class="ml-1 px-1.5 py-0.2 text-[10px] bg-rose-500 text-white rounded-full font-bold animate-pulse">5</span>
         </button>
         <button onclick="switchTab('tab-advisor')" id="btn-tab-advisor" class="tab-btn px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
           <i class="fa-solid fa-compass"></i> AI 전략 어드바이저 & 시나리오
@@ -155,7 +156,8 @@
   </header>
 
   <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+    <!-- PERSISTENT POLICY ACTION ALERT BANNER (Keeps showing until all items checked!) -->
+    <div id="policyActionGlobalBanner" class="transition-all duration-300"></div>
 
     <!-- ALERT BANNER: CONFIRMED UPDATE -->
     <div id="alertBanner" class="p-4 rounded-xl bg-gradient-to-r from-emerald-500/20 via-teal-600/20 to-transparent border-l-4 border-emerald-500 text-emerald-200 flex items-start gap-3 shadow-md">
@@ -791,21 +793,82 @@
 
     </section>
 
-    <!-- ==================== TAB 6: LIVE NEWS & SYLLABUS MONITOR ==================== -->
+    <!-- ==================== TAB 6: AI POLICY & EXAM INTELLIGENCE (ACTION REQUIRED) ==================== -->
     <section id="tab-news" class="tab-content hidden space-y-6">
       
-      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-6">
-        <div class="flex flex-wrap items-center justify-between gap-4">
+      <!-- Top Action Intelligence Card -->
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-6 shadow-sm">
+        
+        <!-- Header & Action Summary -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-5">
           <div>
-            <h2 class="text-lg font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-satellite-dish text-emerald-400 animate-pulse"></i>
-              실시간 환경 정책·뉴스 & 시험요강 변동 감지기
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 text-[11px] rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold flex items-center gap-1.5">
+                <i class="fa-solid fa-bell animate-bounce"></i> AI 액션 인텔리전스
+              </span>
+              <span class="text-xs text-slate-400">단순 뉴스 나열 차단 ➔ 100% 실행 중심 맞춤 분석</span>
+            </div>
+            <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mt-2">
+              <i class="fa-solid fa-satellite-dish text-emerald-400"></i>
+              실시간 환경 정책·시험요강 AI 변동 감지 & 필수 조치 센터
             </h2>
-            <p class="text-xs text-slate-400 mt-1">
-              환경부 정책 백서, TMS 규제 강화, 탄소중립 기본법 개정, 큐넷 시험 기준 변경을 실시간 모니터링하여 학습 방향 수정을 즉시 안내합니다.
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+              공단(Q-Net) 심사 강화, 2027년 실기 단위소거 감점, 굴뚝 TMS 개정 등 최신 변동 사안을 AI가 분석하여 
+              <strong class="text-amber-300">대표님이 서류·수험·비즈니스에서 즉시 변경해야 할 조치사항</strong>을 제시합니다. 
+              <strong>대표님이 직접 확인 체크하기 전까지 상단 경고가 지속됩니다.</strong>
             </p>
           </div>
 
+          <!-- Quick Action Counts & Controls -->
+          <div class="flex items-center gap-3">
+            <div id="policyStatusCard" class="px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 flex items-center gap-3">
+              <!-- Injected by JS: Pending count & Check percentage -->
+            </div>
+            <button onclick="markAllPolicyActions(true)" class="px-3 py-2 text-xs rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 transition flex items-center gap-1.5 font-semibold">
+              <i class="fa-solid fa-check-double"></i> 전체 확인 완료
+            </button>
+            <button onclick="markAllPolicyActions(false)" class="px-3 py-2 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700 transition" title="체크 초기화">
+              <i class="fa-solid fa-rotate-left"></i> 초기화
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Chips Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <button onclick="filterPolicyActions('all')" id="btn-pol-all" class="pol-filter-btn px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold transition">전체 사안 (5)</button>
+            <button onclick="filterPolicyActions('pending')" id="btn-pol-pending" class="pol-filter-btn px-3 py-1.5 rounded-lg bg-slate-800 text-rose-400 hover:bg-slate-700 border border-slate-700 transition font-bold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+              미확인 필수 조치 (<span id="count-pol-pending">5</span>)
+            </button>
+            <button onclick="filterPolicyActions('completed')" id="btn-pol-completed" class="pol-filter-btn px-3 py-1.5 rounded-lg bg-slate-800 text-emerald-400 hover:bg-slate-700 border border-slate-700 transition font-bold">
+              반영 완료 (<span id="count-pol-completed">0</span>)
+            </button>
+          </div>
+
+          <div class="text-xs text-slate-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-amber-400"></i>
+            <span>체크 상태는 브라우저(LocalStorage)에 자동 영구 보존됩니다.</span>
+          </div>
+        </div>
+
+        <!-- Action Items List (Dynamic Injection) -->
+        <div id="policyActionList" class="space-y-4">
+          <!-- Injected via JavaScript -->
+        </div>
+
+      </div>
+
+      <!-- Reference: Live News & RSS Search Box (Secondary Reference) -->
+      <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-300 flex items-center gap-2">
+              <i class="fa-regular fa-newspaper text-slate-400"></i>
+              참고용 실시간 환경 뉴스 & 전문 리포트 원문 피드
+            </h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">상기 AI 맞춤 조치사항의 근거가 된 부처/기관별 최신 보도자료 및 공지사항 원문 링크</p>
+          </div>
           <!-- Keyword Filter Chips -->
           <div class="flex flex-wrap items-center gap-1.5 text-xs">
             <button onclick="fetchNewsKeyword('대기환경기사')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-emerald-600 text-slate-300 hover:text-white border border-slate-700 transition">#대기환경기사</button>
@@ -819,26 +882,15 @@
         <!-- Search Bar -->
         <div class="flex gap-2">
           <input type="text" id="customNewsQuery" placeholder="검색할 환경 이슈 또는 자격증 시험 키워드 입력..." 
-                 class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
-          <button onclick="fetchNewsKeyword(document.getElementById('customNewsQuery').value)" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-2">
-            <i class="fa-solid fa-magnifying-glass"></i> 검색 실행
+                 class="flex-1 bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+          <button onclick="fetchNewsKeyword(document.getElementById('customNewsQuery').value)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-2 border border-slate-700">
+            <i class="fa-solid fa-magnifying-glass"></i> 원문 검색
           </button>
         </div>
 
-        <!-- News Feed Results Container -->
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="font-bold text-white text-sm flex items-center gap-2">
-              <i class="fa-regular fa-newspaper text-emerald-400"></i>
-              실시간 뉴스 & 전문 리포트 피드
-            </h3>
-            <span id="newsStatusText" class="text-xs text-slate-400">최신 8개 뉴스 로딩됨</span>
-          </div>
-          <div id="newsFeedList" class="space-y-3">
-            <!-- Injected via JavaScript -->
-          </div>
+        <div id="newsFeedList" class="space-y-2.5 pt-2">
+          <!-- Injected via JavaScript -->
         </div>
-
       </div>
 
     </section>
@@ -1714,6 +1766,361 @@
       }
     ];
 
+    // ==================== AI POLICY & EXAM INTELLIGENCE ACTIONS ====================
+    const POLICY_ACTIONS = [
+      {
+        id: "act-qnet-audit",
+        urgency: "🚨 긴급 필수 조치",
+        urgencyBadgeClass: "bg-rose-500/20 text-rose-400 border border-rose-500/30",
+        tag: "Q-Net 경력서류 심사",
+        source: "한국산업인력공단 자격검정국",
+        date: "2026-09-20",
+        title: "폐업 사업장 인우보증(사실확인서) 심사 시 직무내용 구체성 검증 및 전산 직무코드(024 생산관리) 실사 지침 강화",
+        summary: "공단은 폐업 법인 인우보증 접수 시 IT/소프트웨어 업종(21)의 타 직무 우회 신청을 차단하기 위해, 경력증명서의 '담당업무 상세 기술서'에 생산설비·공정관리·품질안전 실무가 구체적으로 입증되지 않을 경우 직무코드 024 승인을 원천 반려하도록 지침을 강화했습니다.",
+        impact: "시크릿타운 10년 경력을 단순 '소프트웨어 개발/VR'로 기재하면 '21. 정보통신'으로 자동 분류되어 대기환경기사 및 기술사 응시가 전면 차단됩니다. 반드시 '024. 생산관리'로 전산 승인되어야 10년 전체가 한 번에 인정됩니다.",
+        actionRequired: "👉 즉시 실행: [Q-Net 경력서류] 탭의 [서식2] 경력증명서에 기재된 대로, 담당업무를 '스마트 플랜트 3D 디지털트윈 관제 시스템 구축을 통한 공정/배출시설 안전 및 생산품질 관리(024 생산관리)'로 확정하고, 디자인본부 부장님의 사실확인서(서식3)에도 동일한 생산관리 직무 키워드를 일치시켜 날인받으십시오!",
+        linkTab: "tab-qnet-prep",
+        linkText: "Q-Net 경력서류 & 인우보증 패키지 확인"
+      },
+      {
+        id: "act-exam-calc",
+        urgency: "⚡ 출제기준 변경",
+        urgencyBadgeClass: "bg-amber-500/20 text-amber-400 border border-amber-500/30",
+        tag: "대기환경기사 실기",
+        source: "한국산업인력공단 출제기획부",
+        date: "2026-09-12",
+        title: "2027년 대기환경기사 실기 필답형: 계산과정 '단위소거법' 및 유효숫자 채점 기준 대폭 강화",
+        summary: "대기환경기사 100% 필답형 실기에서 최종 답만 맞고 계산 풀이 과정에서 유효숫자 처리, 단위 환산(kg/hr ↔ Sm³/min, ppm ↔ mg/Sm³) 및 단위 소거(Dimensional Analysis) 과정이 누락될 경우 0점 또는 부분점수 대폭 감점 처리 공고.",
+        impact: "객관식 CBT 필기는 기출 암기로 통과 가능하나, 2027년 1회 실기 필답형은 주관식이므로 풀이 유도 과정을 명확히 쓰지 못하면 비전공자 특성상 대량 감점으로 과락(60점 미만) 위험이 급증합니다.",
+        actionRequired: "👉 즉시 실행: 기사 수험서 계산문제를 풀 때 공식 유도 시 모든 단위(m³, kg, mol, hr)를 분수 형태로 적어 상쇄시키는 '단위소거 노트 30제'를 별도로 정리하는 계획을 Phase 2 학습 플랜에 공식 반영하십시오!",
+        linkTab: "tab-checklist",
+        linkText: "Phase 2 학습 체크리스트 확인"
+      },
+      {
+        id: "act-tms-iot",
+        urgency: "🏛️ 법령 개정",
+        urgencyBadgeClass: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+        tag: "대기관리기술사 서브노트",
+        source: "환경부 대기환경정책과",
+        date: "2026-09-15",
+        title: "'대기관리권역법' 및 '대기환경보전법' 개정: 소규모 4·5종 사업장 굴뚝 자동측정기기(TMS) 부착 의무화 확대",
+        summary: "대형 사업장 중심의 굴뚝 TMS 부착 의무가 대기관리권역 내 특정대기유해물질(벤젠, 염화수소 등)을 배출하는 4·5종 소규모 사업장으로 단계적 확대 입법예고되었습니다.",
+        impact: "소규모 사업장의 저비용 IoT/클라우드 기반 원격 모니터링 시스템 구축 수요가 급증하며, 이는 대표님의 IT/VR 디지털트윈 백그라운드와 직결되는 초대형 시장입니다. 또한 대기관리기술사 1교시 단답형 및 3~4교시 서술형 논술의 1순위 시사 출제 토픽입니다.",
+        actionRequired: "👉 즉시 실행: 대기관리기술사 100대 서브노트에 '소규모 사업장 IoT 기반 굴뚝 TMS 확대 및 원격 전송 프로토콜(VPN/REST API)' 항목을 A급 핵심 서브노트로 즉각 편성하십시오!",
+        linkTab: "tab-timeline",
+        linkText: "기술사 4단계 시계열 아키텍처 확인"
+      },
+      {
+        id: "act-cbam-b2b",
+        urgency: "💼 B2B 수익화",
+        urgencyBadgeClass: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
+        tag: "기술거래사 & ISO 14001",
+        source: "산업통상자원부 / 환경부",
+        date: "2026-09-08",
+        title: "EU CBAM(탄소국경조정제도) 2026년 정식 시행 및 K-ETS 제4차 계획기간 온실가스 산정 가이드라인 배포",
+        summary: "EU 수출 국내 제조기업 대상 제품별 내재 배출량(Embedded Emissions) 제3자 검증 및 스코프 1·2·3 온실가스 산정 지침이 확정 발효되었습니다.",
+        impact: "제조기업 CEO들이 탄소 배출량 산정과 친환경 저탄소 공정 기술 이전을 시급히 원하고 있습니다. 대표님의 '기술거래사' 자격과 'ISO 14001 국제심사원' 자격을 결합하면 건당 500만~1,000만 원대의 고단가 친환경 컨설팅 수주가 즉각 가능합니다.",
+        actionRequired: "👉 즉시 실행: 다음 주 기술거래사 등록증 수령 후 제작할 B2B 명함 및 제안서에 'CBAM 대응 공정 온실가스 진단 및 친환경 R&D 기술매칭 패키지'를 핵심 서비스 1번으로 전면 배치하십시오!",
+        linkTab: "tab-synergy",
+        linkText: "융합 비즈니스 파이프라인 확인"
+      },
+      {
+        id: "act-ippc-twin",
+        urgency: "💼 기술사 실적 포트폴리오",
+        urgencyBadgeClass: "bg-purple-500/20 text-purple-400 border border-purple-500/30",
+        tag: "통합환경관리 & 엔지니어링",
+        source: "환경부 환경영향평가과",
+        date: "2026-08-25",
+        title: "통합환경관리제도(IPPC) 발전·소각 10개 업종 5년 주기 통합허가 재검토 도래... 대기질 확산 모델링 기술사 품귀",
+        summary: "통합허가 취득 사업장의 5년 주기 배출영향분석 및 최적가용기법(BAT) 적용성 재평가 용역이 대거 발주되면서 대기환경 모델링(AERMOD) 전문 기술사 부족 현상이 심화되었습니다.",
+        impact: "대표님이 직접 수행하셨던 당진/일산/부산 복합화력발전소 관제 시스템 개발 실적은 향후 대기관리기술사 취득 후 건당 2,000만~5,000만 원 규모 발전사 통합환경관리 재검토 용역 수주 시 결정적인 실적 증빙이 됩니다.",
+        actionRequired: "👉 즉시 실행: 과거 수행한 화력발전소 3D 디지털트윈 관제 프로젝트의 발주처, 시스템 개요, 안전/배출시설 모니터링 기능 명세서를 '통합환경관리 플랜트 엔지니어링 포트폴리오'로 사전 정리해 두십시오!",
+        linkTab: "tab-synergy",
+        linkText: "발전소 관제 실적 상세 보기"
+      }
+    ];
+
+    let currentPolicyFilter = 'all';
+
+    function getPolicyState() {
+      const saved = localStorage.getItem('loadmap_policy_action_checks_v2');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error('Failed to parse policy state', e);
+        }
+      }
+      const initial = {};
+      POLICY_ACTIONS.forEach(a => {
+        initial[a.id] = { checked: false, timestamp: null };
+      });
+      return initial;
+    }
+
+    function savePolicyState(state) {
+      localStorage.setItem('loadmap_policy_action_checks_v2', JSON.stringify(state));
+      updatePolicyUI();
+    }
+
+    function togglePolicyAction(id) {
+      const state = getPolicyState();
+      const current = state[id] || { checked: false, timestamp: null };
+      const nextChecked = !current.checked;
+      const nowStr = nextChecked ? new Date().toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
+      state[id] = { checked: nextChecked, timestamp: nowStr };
+      savePolicyState(state);
+    }
+
+    function markAllPolicyActions(val) {
+      const state = getPolicyState();
+      const nowStr = val ? new Date().toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
+      POLICY_ACTIONS.forEach(a => {
+        state[a.id] = { checked: val, timestamp: nowStr };
+      });
+      savePolicyState(state);
+    }
+
+    function filterPolicyActions(mode) {
+      currentPolicyFilter = mode;
+      document.querySelectorAll('.pol-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-emerald-600', 'text-white');
+        btn.classList.add('bg-slate-800');
+      });
+      const activeBtn = document.getElementById(`btn-pol-${mode}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-slate-800');
+        activeBtn.classList.add('bg-emerald-600', 'text-white');
+      }
+      renderPolicyActions();
+    }
+
+    function updatePolicyUI() {
+      const state = getPolicyState();
+      let pendingCount = 0;
+      let completedCount = 0;
+
+      POLICY_ACTIONS.forEach(a => {
+        if (state[a.id]?.checked) {
+          completedCount++;
+        } else {
+          pendingCount++;
+        }
+      });
+
+      // Update counters in tabs
+      const countPendingEl = document.getElementById('count-pol-pending');
+      const countCompletedEl = document.getElementById('count-pol-completed');
+      if (countPendingEl) countPendingEl.innerText = pendingCount;
+      if (countCompletedEl) countCompletedEl.innerText = completedCount;
+
+      // Update Nav Badge
+      const navBadge = document.getElementById('policyActionBadge');
+      if (navBadge) {
+        if (pendingCount > 0) {
+          navBadge.innerText = pendingCount;
+          navBadge.className = "ml-1 px-1.5 py-0.2 text-[10px] bg-rose-500 text-white rounded-full font-bold animate-pulse";
+        } else {
+          navBadge.innerText = "✓";
+          navBadge.className = "ml-1 px-1.5 py-0.2 text-[10px] bg-emerald-500 text-white rounded-full font-bold";
+        }
+      }
+
+      // Update Policy Status Card
+      const statusCard = document.getElementById('policyStatusCard');
+      if (statusCard) {
+        if (pendingCount > 0) {
+          statusCard.innerHTML = `
+            <div class="w-3 h-3 rounded-full bg-rose-500 animate-ping"></div>
+            <div>
+              <div class="text-[11px] text-slate-400">대표님 미반영 조치</div>
+              <div class="text-sm font-bold text-rose-400">${pendingCount}건 확인 대기 중</div>
+            </div>
+          `;
+        } else {
+          statusCard.innerHTML = `
+            <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+            <div>
+              <div class="text-[11px] text-slate-400">조치 상태</div>
+              <div class="text-sm font-bold text-emerald-400">5건 모두 반영 완료</div>
+            </div>
+          `;
+        }
+      }
+
+      // Update Global Persistent Banner
+      const globalBanner = document.getElementById('policyActionGlobalBanner');
+      if (globalBanner) {
+        if (pendingCount > 0) {
+          globalBanner.innerHTML = `
+            <div class="p-4 rounded-xl bg-gradient-to-r from-rose-950/90 via-amber-950/80 to-slate-900 border-l-4 border-rose-500 text-slate-200 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 animate-pulse">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 text-lg flex-shrink-0">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                  <div class="font-bold text-white text-sm sm:text-base flex flex-wrap items-center gap-2">
+                    <span>🚨 [AI 정책·시험 변동 감지] 대표님 확인 및 로드맵 반영 대기 조치 <strong class="text-rose-400 text-base sm:text-lg">${pendingCount}건</strong> 존재!</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500 text-white font-semibold">대표님 체크 전까지 상시 알림</span>
+                  </div>
+                  <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                    공단 Q-Net 서류 심사 강화(024 생산관리 소명), 2027 기사 실기 단위소거 감점, 굴뚝 TMS 법령 개정 등 대표님이 직접 서류/공부 계획에 반영해야 할 사항입니다.
+                  </p>
+                </div>
+              </div>
+              <button onclick="switchTab('tab-news')" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2 whitespace-nowrap flex-shrink-0">
+                <span>즉시 분석 확인 & 체크하기</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          `;
+          globalBanner.classList.remove('hidden');
+        } else {
+          globalBanner.innerHTML = `
+            <div class="p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border-l-4 border-emerald-500 text-slate-300 shadow-md flex items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-sm flex-shrink-0">
+                  <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                  <div class="font-bold text-white text-xs sm:text-sm flex items-center gap-2">
+                    <span>✅ 최신 환경 정책·시험요강 AI 조치사항(5건) 로드맵 완벽 반영 완료!</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400 mt-0.5">
+                    공단 024 생산관리 문구 확정, 실기 단위소거법, TMS 서브노트, CBAM B2B 패키지 등이 대표님의 로드맵에 완벽히 체크되었습니다.
+                  </p>
+                </div>
+              </div>
+              <button onclick="switchTab('tab-news')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700 transition whitespace-nowrap">
+                내역 확인
+              </button>
+            </div>
+          `;
+        }
+      }
+
+      renderPolicyActions();
+    }
+
+    function renderPolicyActions() {
+      const container = document.getElementById('policyActionList');
+      if (!container) return;
+
+      const state = getPolicyState();
+      let list = POLICY_ACTIONS;
+
+      if (currentPolicyFilter === 'pending') {
+        list = list.filter(a => !state[a.id]?.checked);
+      } else if (currentPolicyFilter === 'completed') {
+        list = list.filter(a => state[a.id]?.checked);
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 rounded-xl bg-slate-800/40 border border-slate-700/60 text-center space-y-2">
+            <div class="text-3xl text-emerald-400"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="font-bold text-white text-sm">해당 조건의 사안이 없습니다.</div>
+            <p class="text-xs text-slate-400">모든 변동 사항이 정상적으로 반영되었거나 필터 조건에 부합하는 항목이 없습니다.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(item => {
+        const isChecked = state[item.id]?.checked || false;
+        const checkTime = state[item.id]?.timestamp;
+
+        return `
+          <div class="p-5 rounded-2xl border transition-all duration-300 ${isChecked ? 'bg-slate-900/70 border-emerald-500/40 shadow-sm' : 'bg-slate-800/90 border-amber-500/60 shadow-lg'}">
+            
+            <!-- Top Metadata -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 text-[11px] rounded-lg font-bold ${item.urgencyBadgeClass}">
+                  ${item.urgency}
+                </span>
+                <span class="px-2.5 py-0.5 text-[11px] rounded-lg bg-slate-800 text-slate-300 border border-slate-700 font-medium">
+                  <i class="fa-solid fa-tag text-slate-400"></i> ${item.tag}
+                </span>
+              </div>
+              <div class="text-xs text-slate-400 flex items-center gap-1.5">
+                <span>${item.source}</span>
+                <span>•</span>
+                <span>${item.date}</span>
+              </div>
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-base font-bold text-white mb-3">
+              ${item.title}
+            </h3>
+
+            <!-- 3-Block Grid Analysis -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs mb-4">
+              
+              <!-- Box 1: AI Summary -->
+              <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+                <div class="font-bold text-slate-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-circle-info text-blue-400"></i> 사안 핵심 요약
+                </div>
+                <p class="text-slate-300 leading-relaxed">${item.summary}</p>
+              </div>
+
+              <!-- Box 2: Impact on YOU -->
+              <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+                <div class="font-bold text-amber-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-bullseye text-amber-400"></i> 대표님 로드맵 영향 분석
+                </div>
+                <p class="text-slate-300 leading-relaxed">${item.impact}</p>
+              </div>
+
+              <!-- Box 3: Action to Take -->
+              <div class="p-3.5 rounded-xl bg-amber-950/20 border border-amber-500/40 space-y-1">
+                <div class="font-bold text-amber-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-wrench text-amber-400"></i> 대표님 즉시 실행 조치 (Action)
+                </div>
+                <p class="text-amber-200/90 leading-relaxed font-medium">${item.actionRequired}</p>
+                ${item.linkTab ? `
+                  <div class="pt-2">
+                    <button onclick="switchTab('${item.linkTab}')" class="text-[11px] text-emerald-400 hover:text-emerald-300 underline font-semibold flex items-center gap-1">
+                      <span>${item.linkText}</span>
+                      <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
+
+            </div>
+
+            <!-- Footer: Interactive Check Button -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-800/80">
+              <div class="text-xs">
+                ${isChecked ? `
+                  <span class="text-emerald-400 font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-check"></i> 대표님 로드맵 전략 반영 완료 (${checkTime})
+                  </span>
+                ` : `
+                  <span class="text-rose-400 font-semibold flex items-center gap-1.5 animate-pulse">
+                    <i class="fa-solid fa-triangle-exclamation"></i> 대표님 미반영 상태: 확인 후 아래 버튼을 클릭하여 체크 완료하십시오!
+                  </span>
+                `}
+              </div>
+
+              <button onclick="togglePolicyAction('${item.id}')" 
+                      class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${isChecked ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700' : 'bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white shadow-lg'}">
+                ${isChecked ? `
+                  <i class="fa-solid fa-rotate-left"></i> 미완료 상태로 되돌리기
+                ` : `
+                  <i class="fa-solid fa-check-double"></i> 확인 및 로드맵 반영 완료 체크하기
+                `}
+              </button>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderNews(newsList) {
       const container = document.getElementById('newsFeedList');
       if (!container) return;
@@ -1832,6 +2239,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       initTasks();
       initCharts();
+      updatePolicyUI();
       renderNews(CURATED_NEWS);
       selectScenario('sc1');
     });
